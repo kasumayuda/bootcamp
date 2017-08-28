@@ -34,14 +34,11 @@ export class LoginForm extends Component{
         var headers ={ 
             headers: {'Content-Type':'application/x-www-form-urlencoded'}
         };
-        axios.post('https://localhost:44323/token', params, headers)
+        axios.post(CommonHelper.ExploreJogjaAPIServer() + 'token' , params, headers)
         .then((response)=>{
             localStorage.setItem('user-token', response.data.access_token);
             this.setState({loggedIn: true});
             this.props.updateOtherComponent(this);
-            //update menu component
-            //redirect to somewhere
-            
         })
         .catch(function(error){
             alert('sorry buddy...error');

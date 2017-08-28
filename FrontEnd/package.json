@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "flexboxgrid": "^6.3.1",
     "react-icons": "^2.2.5"
   },
   "devDependencies": {

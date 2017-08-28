@@ -9,7 +9,7 @@ namespace ExploreJogjaAPI.Models.Events
     public class EventEntity
     {
         [Key]
-        public long EventID { get; set; }
+        public Guid EventID { get; set; }
 
         public string Name { get; set; }
 

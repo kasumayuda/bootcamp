@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace ExploreJogjaAPI.Controllers
 {
     [Route("/")]
-    [ApiVersion("1.0")]
+    //[ApiVersion("1.0")]
     public class RootController : Controller
     {
         [HttpGet(Name =(nameof(GetRoot)))]
         public IActionResult GetRoot() {
             var response = new {
-                href=Url.Link(nameof(GetRoot), null)
+                href=Url.Link(nameof(GetRoot), null),
             };
 
             return Ok(response);

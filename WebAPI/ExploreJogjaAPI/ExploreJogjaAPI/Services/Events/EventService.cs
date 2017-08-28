@@ -18,16 +18,16 @@ namespace ExploreJogjaAPI.Services.Events
         public EventService(
             ExploreJogjaAPIContext context
             ) {
-
+            _context = context;
         }
 
-        public Task<Event> GetEventAsync(Guid id, CancellationToken ct) {
+        public async Task<Event> GetEventAsync(Guid id, CancellationToken ct) {
             var entity = await _context.EventsList.FirstOrDefaultAsync(x=>x.EventID == id, ct);
             if (entity == null) {
                 return null;
             }
 
-            return Mapp
+            return Mapper.Map<Event>(entity);
         }
 
         public Task<PagedResults<Event>> GetEventsAsync(PagingOptions pagingOptions, SortOptions<Event, EventEntity> sortOptions, SearchOptions<Event, EventEntity> searchOptions, CancellationToken ct) {

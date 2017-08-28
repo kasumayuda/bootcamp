@@ -22,6 +22,7 @@ using ExploreJogjaAPI.Infrastructure;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc.Cors.Internal;
 using Microsoft.AspNetCore.Http;
+using ExploreJogjaAPI.Services.Events;
 
 namespace ExploreJogjaAPI {
     public class Startup {
@@ -110,6 +111,9 @@ namespace ExploreJogjaAPI {
                 opt.DefaultApiVersion = new ApiVersion(1, 0);
                 opt.ApiVersionSelector = new CurrentImplementationApiVersionSelector(opt);
             });
+
+            services.AddScoped<IEventService, EventService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

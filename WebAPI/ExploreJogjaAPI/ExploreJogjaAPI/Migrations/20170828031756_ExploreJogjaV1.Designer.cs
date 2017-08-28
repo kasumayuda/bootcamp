@@ -8,9 +8,10 @@ using ExploreJogjaAPI;
 namespace ExploreJogjaAPI.Migrations
 {
     [DbContext(typeof(ExploreJogjaAPIContext))]
-    partial class ExploreJogjaAPIContextModelSnapshot : ModelSnapshot
+    [Migration("20170828031756_ExploreJogjaV1")]
+    partial class ExploreJogjaV1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)

@@ -7,10 +7,12 @@ using ExploreJogjaAPI.Models;
 using ExploreJogjaAPI.Models.Events;
 using System.Threading;
 using ExploreJogjaAPI.Services.Events;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 
 namespace ExploreJogjaAPI.Controllers
 {
-    [Route("/[controller]")]
+    [Route("/[controller]")]    
     public class EventController : Controller
     {
 
@@ -22,7 +24,7 @@ namespace ExploreJogjaAPI.Controllers
             _eventService = eventService;
         }
 
-        [HttpGet("{roomId}", Name = nameof(GetEventByIdAsync))]
+        [HttpGet("{eventId}", Name = nameof(GetEventByIdAsync))]
         public async Task<IActionResult> GetEventByIdAsync(Guid eventId, CancellationToken ct) {
             var eventData = await _eventService.GetEventAsync(eventId, ct);
             if (eventData == null) {
@@ -32,7 +34,9 @@ namespace ExploreJogjaAPI.Controllers
             return Ok(eventData);
         }
 
-        [HttpPost("/create")]
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("create", Name = nameof(CreateEventAsync))]
         public async Task<IActionResult> CreateEventAsync(
             [FromBody] EventForm eventForm,
             CancellationToken ct) {
