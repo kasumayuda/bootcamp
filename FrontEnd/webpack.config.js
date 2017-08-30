@@ -7,6 +7,9 @@ module.exports = {
         filename: 'bundle.js',
         publicPath: 'assets'
     },
+    externals:{
+        'Config' : JSON.stringify(require('./config.json'))
+    },
     devServer:{
         inline: true,
         contentBase: '',

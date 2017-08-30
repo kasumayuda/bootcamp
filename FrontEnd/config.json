@@ -1,0 +1,7 @@
+{    
+    "apiServer":{
+        "protocol":"https",
+        "address":"localhost",
+        "port":"44323"
+    }    
+}

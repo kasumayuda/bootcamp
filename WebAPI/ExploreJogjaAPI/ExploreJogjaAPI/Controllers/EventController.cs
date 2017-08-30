@@ -34,7 +34,7 @@ namespace ExploreJogjaAPI.Controllers
             return Ok(eventData);
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost]
         [Route("create", Name = nameof(CreateEventAsync))]
         public async Task<IActionResult> CreateEventAsync(
