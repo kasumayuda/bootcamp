@@ -24,7 +24,7 @@ export class Menu extends Component{
                 <Link to="/logout" activeClassName="selected">
                     <PadUnlockIcon/> 
                 </Link>
-                <Link to="/add-event" activeClassName="selected">
+                <Link to="/create-event" activeClassName="selected">
                     <AddDayIcon/>
                 </Link>
                 <Link to="/event-list" activeClassName="selected">

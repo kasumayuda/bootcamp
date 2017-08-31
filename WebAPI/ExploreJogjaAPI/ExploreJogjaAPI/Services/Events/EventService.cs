@@ -21,6 +21,12 @@ namespace ExploreJogjaAPI.Services.Events
             _context = context;
         }
 
+        /// <summary>
+        /// get an event by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         public async Task<Event> GetEventAsync(Guid id, CancellationToken ct) {
             var entity = await _context.EventsList.FirstOrDefaultAsync(x=>x.EventID == id, ct);
             if (entity == null) {
@@ -30,10 +36,50 @@ namespace ExploreJogjaAPI.Services.Events
             return Mapper.Map<Event>(entity);
         }
 
-        public Task<PagedResults<Event>> GetEventsAsync(PagingOptions pagingOptions, SortOptions<Event, EventEntity> sortOptions, SearchOptions<Event, EventEntity> searchOptions, CancellationToken ct) {
-            throw new NotImplementedException();
+        /// <summary>
+        /// get event list
+        /// </summary>
+        /// <param name="pagingOptions"></param>
+        /// <param name="sortOptions"></param>
+        /// <param name="searchOptions"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        public async Task<PagedResults<Event>> GetEventsAsync(
+            PagingOptions pagingOptions, 
+            SortOptions<Event, EventEntity> sortOptions, 
+            SearchOptions<Event, EventEntity> searchOptions, 
+            CancellationToken ct) {
+
+            IQueryable<EventEntity> query = _context.EventsList;
+            query = searchOptions.Apply(query);
+            query = sortOptions.Apply(query);
+
+            var size = await query.CountAsync(ct);
+
+            var items = await query
+                .Skip(pagingOptions.Offset.GetValueOrDefault())
+                .Take(pagingOptions.Limit.GetValueOrDefault())
+                .ProjectTo<Event>()
+                .ToArrayAsync(ct);
+
+            return new PagedResults<Event> {
+                Items = items,
+                TotalSize = size
+            };
+
         }
 
+        /// <summary>
+        /// create new event
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="location"></param>
+        /// <param name="description"></param>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="expire"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         public async Task<Guid> CreateEventAsync(
             string name,
             string location,

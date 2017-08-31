@@ -7,7 +7,9 @@ import DatePicker from 'material-ui/DatePicker';
 import TimePicker from 'material-ui/TimePicker';
 import axios from 'axios';
 import * as CommonHelper from './Common';
-
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
+import update from 'immutability-helper';
 
 export class EventForm extends Component{
     constructor(props){
@@ -16,94 +18,142 @@ export class EventForm extends Component{
         this.submit = this.submit.bind(this);
         this.reset = this.reset.bind(this);
         this.formEventIsValid = this.formEventIsValid.bind(this);
+        this.openDialog = this.openDialog.bind(this);
+        this.closeDialog = this.closeDialog.bind(this);
+        this.assignEventState = this.assignEventState.bind(this);
+        this.assignEventDialog = this.assignEventDialog.bind(this);
+        this.submitEvent = this.submitEvent.bind(this);
+
         this.state = {
-            name:'',
-            location:'',
-            description:'',
-            startDate:new Date(),
-            startTime:new Date(),
-            finishDate:new Date(),
-            finishTime:new Date(),
-            errors:{}
+            event:{
+                name:'',
+                location:'',
+                description:'',
+                startDate:new Date(),
+                startTime:new Date(),
+                finishDate:new Date(),
+                finishTime:new Date()
+            },
+            errorMessages:{
+                name:'',
+                location:'',
+                description:'',
+                startDate:'',
+                startTime:'',
+                finishDate:'',
+                finishTime:''
+            },
+            dialogSetup:{
+                dialogOpen: false,
+                dialogClose: false,
+                popupMessage: '',
+                dialogTitle: ''
+            }            
         };
-
-     
     }
     
-    formEventIsValid(){        
-        var isFormValid = true;
-        this.setState({
-            errors:{}
+    assignEventState(field, attribute){
+        var temp = update(this.state.event, {
+            [field]: {$set: attribute}
         });
-
-        var nameError = Object.assign(this.state.errors, {name: this.state.name === "" ? "Event name is required" : ""});
-        this.setState({ errors: nameError });
-
-        var locationError = Object.assign(this.state.errors, {location: this.state.location === "" ? "Location is required" : ""});
-        this.setState({ errors: locationError });            
     
-        var descriptionError = Object.assign(this.state.errors, {description: this.state.description === "" ? "Description is required" : ""});
-        this.setState({ errors: descriptionError });            
+        this.setState({
+            event: temp
+        });
+    }
+    
+    assignEventDialog(field, attribute){
+        var temp = update(this.state.dialogSetup, {
+            [field]: {$set: attribute}
+        });
         
-        if (this.state.name === "" || this.state.location === "" || this.state.description === ""){
-            isFormValid = false;
-        }
-
-        if (this.state.startDate.valueOf() != this.state.finishDate.valueOf() && this.state.finishDate.valueOf() < this.state.startDate.valueOf()){
-            var startDateError = Object.assign(this.state.errors, {startDate: "Start date can't be later than finish date"});
-            this.setState({ errors: startDateError });
-            isFormValid = false;
-        }else{
-            var startDateError = Object.assign(this.state.errors, {startDate: ""});
-            this.setState({ errors: startDateError });
-        }
-        
-        if (this.state.startDate.valueOf() === this.state.finishDate.valueOf() && this.state.finishTime.getTime() < this.state.startTime.getTime()){
-            var startTimeError = Object.assign(this.state.errors, {startTime: "Start time can't be later than finish time"});
-            this.setState({ errors: startTimeError });
-            isFormValid = false;
-        }else{
-            var startTimeError = Object.assign(this.state.errors, {startTime: ""});
-            this.setState({ errors: startTimeError });
-        }
-
-        return isFormValid;
-
+        this.setState({
+            dialogSetup: temp
+        });
     }
 
-    submit(e){
+    formEventIsValid(){
+        var isFormValid = true;       
+
+        var startDateMessage = '';
+        if (this.state.event.startDate.valueOf() != this.state.event.finishDate.valueOf() && this.state.event.finishDate.valueOf() < this.state.event.startDate.valueOf()){
+            startDateMessage = "Start date can't be later than finish date";
+        }
+
+        var startTimeMessage = '';
+        if (this.state.event.startDate.valueOf() === this.state.event.finishDate.valueOf() && this.state.event.finishTime.getTime() < this.state.event.startTime.getTime()){
+            startTimeMessage = "Start time can't be later than finish time";
+        }
+
+        this.setState({
+            errorMessages:{
+                name: this.state.event.name === "" ? 'Event name is required' : "",
+                location: this.state.event.location === "" ? "Location is required" : "",
+                description: this.state.event.description === "" ? "Description is required" : "",
+                startDate: startDateMessage,
+                startTime: startTimeMessage,
+            }
+        });
+        
+        return isFormValid;
+    }
+
+    submit(e){        
         if (this.formEventIsValid()){
-            var startDate = this.state.startDate;
-            var startTime = this.state.startTime;
-            var startDateTime = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), startTime.getHours(), startTime.getMinutes());
-            
-            var finishDate = this.state.finishDate;
-            var finishTime = this.state.finishTime;
-            var finishDateTime = new Date(finishDate.getFullYear(), finishDate.getMonth(), finishDate.getDate(), finishTime.getHours(), finishTime.getMinutes());
-            
-            var params = new URLSearchParams();
-            params.append('Name',this.state.name);
-            params.append('Location',this.state.location);
-            params.append('Description',this.state.description);
-            params.append('From', startDateTime);
-            params.append('To', finishDateTime);
-            var headers ={ 
-                headers: {
-                    'Content-Type':'application/json; charset=utf-8',
-                    'Accept':'application/json',
-                    'Authorization' : `Bearer ${CommonHelper.GetCurrentUserToken()}`
-                }
-            };
-            axios.post(CommonHelper.ExploreJogjaAPIServer() + 'event/create' , params, headers)
-            .then((response)=>{
-                
-            })
-            .catch(function(error){
-                alert('sorry buddy...error');
-                console.log(error);
-            })
+            this.submitEvent();
         }
         e.preventDefault();
+    }
+
+    submitEvent(){
+        var startDate = this.state.event.startDate;
+        var startTime = this.state.event.startTime;
+        var startDateTime = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), startTime.getHours(), startTime.getMinutes());
+        
+        var finishDate = this.state.event.finishDate;
+        var finishTime = this.state.event.finishTime;
+        var finishDateTime = new Date(finishDate.getFullYear(), finishDate.getMonth(), finishDate.getDate(), finishTime.getHours(), finishTime.getMinutes());
+       
+        console.log('submit');
+        
+        var config ={ 
+            headers: {
+                'Content-Type':'application/json; charset=utf-8',
+                'Authorization' : `Bearer ${CommonHelper.GetCurrentUserToken()}`
+            },
+            data:{
+                'Name': this.state.event.name,
+                'Location': this.state.event.location,
+                'Description': this.state.event.description,
+                'From':  startDateTime,
+                'To':  finishDateTime
+            }
+        };
+        axios.post(CommonHelper.ExploreJogjaAPIServer() + 'event/create',{} , config)
+        .then((response)=>{                
+            this.setState({
+                dialogSetup:{
+                    dialogOpen: true,
+                    dialogClose: false,
+                    popupMessage:'Event saved',
+                    dialogTitle: 'Event submission'
+                }                
+            });
+            //this.openDialog();
+        })
+        .catch((error)=>{
+            this.setState({
+                dialogSetup:{
+                    dialogOpen: true,
+                    dialogClose: false,
+                    popupMessage:'Failed to save event',
+                    dialogTitle: 'Event submission'
+                }                
+            });
+            
+            //this.openDialog();
+            console.log(error);
+        })
     }
 
     reset(e){
@@ -112,15 +162,39 @@ export class EventForm extends Component{
         this.refDescriptionInput.getInputNode().value = '';
                 
         this.state = {
-            name:'',
-            location:'',
-            description:'',
-            startDate:new Date(),
-            startTime:new Date(),
-            finishDate:new Date(),
-            finishTime:new Date()
+            event:{
+                name:'',
+                location:'',
+                description:'',
+                startDate:new Date(),
+                startTime:new Date(),
+                finishDate:new Date(),
+                finishTime:new Date(),
+            },
+            errorMessages:{},
+            dialogSetup:{
+                dialogOpen: false,
+                dialogClose: false,
+                popupMessage: '',
+                dialogTitle: ''
+            }            
         };
         e.preventDefault();
+    }
+
+    openDialog(){        
+        this.assignEventDialog('dialogOpen', true);
+    }
+
+    closeDialog(){
+        this.setState({
+            dialogSetup:{
+                dialogOpen: false,
+                dialogClose: true,
+                popupMessage:'',
+                dialogTitle: ''
+            }                
+        });
     }
 
     render(){
@@ -128,9 +202,27 @@ export class EventForm extends Component{
             browserHistory.push('/');
             return <Link to='/'/>;
         }else{
+            
+            const actions = [
+                <FlatButton
+                  label="Close"
+                  primary={true}
+                  onClick={this.closeDialog}
+                />
+              ];
             let DateTimeFormat = Intl.DateTimeFormat;
             return (
-                <MuiThemeProvider>                
+                <div>                 
+                <MuiThemeProvider>
+                    <Dialog actions={actions}
+                            modal={false}
+                            open={this.state.dialogSetup.dialogOpen}
+                            onRequestClose={this.closeDialog}
+                            title={this.state.dialogSetup.dialogTitle}>
+                        {this.state.dialogSetup.popupMessage}
+                    </Dialog> 
+                </MuiThemeProvider>                     
+                <MuiThemeProvider>                       
                     <form onSubmit={this.submit} className="login-form">
                         <h1>Register New Event</h1>
                         <div className="row">                    
@@ -138,30 +230,31 @@ export class EventForm extends Component{
                                         type="text"
                                         hintText="Enter event name"
                                         floatingLabelText="Name"
-                                        errorText={this.state.errors.name}     
-                                        value={this.state.name}                                    
-                                        onChange = {(event, value)=> this.setState({name:value})}
+                                        errorText={this.state.errorMessages.name}     
+                                        value={this.state.event.name}                                    
+                                        onChange = {(event, value)=> this.assignEventState('name', value)}
                                         ref = {(input) => {this.refNameInput = input;}}/>
                         </div>
                         <div className="row">
                             <TextField  id="location"
                                         hintText="Enter event location"
                                         floatingLabelText="Location"
-                                        errorText={this.state.errors.location}     
+                                        errorText={this.state.errorMessages.location}     
                                         type="text"        
-                                        value={this.state.location}
-                                        onChange = {(event, value)=> this.setState({location:value})}
+                                        value={this.state.event.location}
+                                        onChange = {(event, value)=> this.assignEventState('location', value)}
                                         ref = {(input) => {this.refLocationInput = input;}}/>
                         </div>
                         <div className="row">
                             <TextField  id="description"
                                         hintText="Enter event description"
                                         floatingLabelText="Description"
-                                        errorText={this.state.errors.description}     
+                                        errorText={this.state.errorMessages.description}     
                                         type="text"
                                         multiLine={true}
-                                        value={this.state.description}
-                                        onChange = {(event, value)=> this.setState({description:value})}
+                                        fullWidth={true}
+                                        value={this.state.event.description}
+                                        onChange = {(event, value)=> this.assignEventState('description', value)}
                                         ref = {(input) => {this.refDescriptionInput = input;}}/>
                         </div>
                         <div className="row">
@@ -171,21 +264,21 @@ export class EventForm extends Component{
                                         locale="id-ID" 
                                         hintText="Enter start date" 
                                         floatingLabelText="Start Date" 
-                                        errorText={this.state.errors.startDate}
-                                        onChange = {(event, value)=> this.setState({startDate:value})}
+                                        errorText={this.state.errorMessages.startDate}
+                                        onChange = {(event, value)=> this.assignEventState('startDate', value)}
                                         mode="landscape"
-                                        value={this.state.startDate} 
+                                        value={this.state.event.startDate} 
                                         ref = {(input) => {this.refStartDateInput = input;}}/>
                             </div>
                             <div className="col-md-6">
                                 <TimePicker id="to-time" 
                                             format="24hr" 
                                             hintText="Enter start time" 
-                                            errorText={this.state.errors.startTime}
+                                            errorText={this.state.errorMessages.startTime}
                                             floatingLabelText="Start Time" 
-                                            onChange = {(event, value)=> this.setState({startTime:value})}
+                                            onChange = {(event, value)=> this.assignEventState('startTime', value)}
                                             mode="landscape" 
-                                            value={this.state.startTime}
+                                            value={this.state.event.startTime}
                                             ref = {(input) => {this.refStartTimeInput = input;}}/>
                             </div>
                         </div>
@@ -194,23 +287,23 @@ export class EventForm extends Component{
                                 <DatePicker id="to-date" 
                                             DateTimeFormat={DateTimeFormat} 
                                             locale="id-ID" 
-                                            errorText={this.state.errors.finishDate}
+                                            errorText={this.state.errorMessages.finishDate}
                                             hintText="Enter end date" 
                                             floatingLabelText="End Date" 
-                                            onChange = {(event, value)=> this.setState({finishDate:value})}
+                                            onChange = {(event, value)=> this.assignEventState('finishDate', value)}
                                             mode="landscape" 
-                                            value={this.state.finishDate}
+                                            value={this.state.event.finishDate}
                                             ref = {(input) => {this.refFinishDateInput = input;}}/>
                             </div>
                             <div className="col-md-6">
                                 <TimePicker id="to-time" 
                                             format="24hr" 
-                                            errorText={this.state.errors.finishTime}
+                                            errorText={this.state.errorMessages.finishTime}
                                             hintText="Enter end time" 
                                             floatingLabelText="End Time" 
-                                            onChange = {(event, value)=> this.setState({finishTime:value})}
+                                            onChange = {(event, value)=> this.assignEventState('finishTime', value)}
                                             mode="landscape" 
-                                            value={this.state.finishTime}
+                                            value={this.state.event.finishTime}
                                             ref = {(input) => {this.refFinishTimeInput = input;}}/>
                             </div>
                         </div>                    
@@ -220,7 +313,9 @@ export class EventForm extends Component{
                         </div>
                     </form>
                 </MuiThemeProvider>
+                </div>
             );
         }
     }
+
 }

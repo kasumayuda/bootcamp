@@ -9,6 +9,8 @@ using System.Threading;
 using ExploreJogjaAPI.Services.Events;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.Extensions.Options;
+using ExploreJogjaAPI.Infrastructure;
 
 namespace ExploreJogjaAPI.Controllers
 {
@@ -17,11 +19,14 @@ namespace ExploreJogjaAPI.Controllers
     {
 
         private readonly IEventService _eventService;
+        private readonly PagingOptions _defaultPagingOptions;
 
         public EventController(
-            IEventService eventService
+            IEventService eventService,
+            IOptions<PagingOptions> defaultPagingOptionsAccessor
             ) {
             _eventService = eventService;
+            _defaultPagingOptions = defaultPagingOptionsAccessor.Value;
         }
 
         [HttpGet("{eventId}", Name = nameof(GetEventByIdAsync))]
@@ -32,6 +37,45 @@ namespace ExploreJogjaAPI.Controllers
             }
 
             return Ok(eventData);
+        }
+
+        [HttpGet("GetHomePageEventList",Name = nameof(GetEventsHomePageAsync))]
+        [ResponseCache(CacheProfileName = "Collection",
+                       VaryByQueryKeys = new[] { "offset", "limit", "orderBy", "search" })]
+        public async Task<IActionResult> GetEventsHomePageAsync(
+            [FromQuery] PagingOptions pagingOptions, 
+            [FromQuery] SortOptions<Event, EventEntity> sortOptions,
+            [FromQuery] SearchOptions<Event, EventEntity> searchOptions,
+            CancellationToken ct) {
+
+            if (!ModelState.IsValid) {
+                return BadRequest(new ApiError(ModelState));
+            }
+
+            pagingOptions.Offset = pagingOptions.Offset ?? _defaultPagingOptions.Offset;
+            pagingOptions.Limit = pagingOptions.Limit ?? _defaultPagingOptions.Limit;
+
+            var eventDatas = await _eventService.GetEventsAsync(
+                pagingOptions,
+                sortOptions,
+                searchOptions,
+                ct);
+
+            var collection = PagedCollection<Event>.Create<EventResponse>(
+                Link.ToCollection(nameof(GetEventsHomePageAsync)),
+                eventDatas.Items.ToArray(),
+                eventDatas.TotalSize,
+                pagingOptions);
+
+
+            collection.EventQuery = FormMetaData.FromResource<Event>(
+                Link.ToForm(
+                    nameof(GetEventsHomePageAsync),
+                    null,
+                    Link.GetMethod,
+                    Form.QueryRelation));
+
+            return Ok();
         }
 
         [Authorize]
