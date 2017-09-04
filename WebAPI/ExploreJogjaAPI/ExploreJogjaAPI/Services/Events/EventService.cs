@@ -61,7 +61,7 @@ namespace ExploreJogjaAPI.Services.Events
                 .Take(pagingOptions.Limit.GetValueOrDefault())
                 .ProjectTo<Event>()
                 .ToArrayAsync(ct);
-
+            
             return new PagedResults<Event> {
                 Items = items,
                 TotalSize = size

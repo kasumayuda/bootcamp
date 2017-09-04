@@ -75,7 +75,7 @@ namespace ExploreJogjaAPI.Controllers
                     Link.GetMethod,
                     Form.QueryRelation));
 
-            return Ok();
+            return Ok(collection);
         }
 
         [Authorize]

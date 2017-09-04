@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ExploreJogjaAPI
 {
-    public class StringExtensions
+    public static class StringExtensions
     {
         public static string ToCamelCase(this string input) {
             if (string.IsNullOrEmpty(input)) return input;

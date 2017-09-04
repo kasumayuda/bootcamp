@@ -4,6 +4,7 @@ import {LoginForm} from './LoginForm'
 import {Logout} from './Logout'
 import {EventForm} from './EventForm'
 import * as CommonHelper from './Common';
+import {HomepageEventList} from './HomepageEventList'
 
 export class App extends Component{
 
@@ -27,7 +28,8 @@ export class App extends Component{
         return (
             <div className="app">
                 <Menu isUserLoggedIn = {this.state.loggedIn}/>
-                <div className="content">
+                <div className="content">                
+                    {(this.props.location.pathname === "/") ? <HomepageEventList/> : ''}
                     {(this.props.location.pathname === "/login") ? <LoginForm updateOtherComponent={this.handler}/> : ''}
                     {(this.props.location.pathname === "/logout") ? <Logout updateOtherComponent={this.handler}/> : ''}
                     {(this.props.location.pathname === "/create-event") ? <EventForm/> : ''}

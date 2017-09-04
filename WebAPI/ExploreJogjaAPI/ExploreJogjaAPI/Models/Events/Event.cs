@@ -8,6 +8,8 @@ namespace ExploreJogjaAPI.Models.Events
     public class Event : Resource
     {
 
+        public Guid EventID { get; set; }
+
         public string Name  { get; set; }
 
         public string Location { get; set; }
@@ -19,6 +21,12 @@ namespace ExploreJogjaAPI.Models.Events
         public DateTime To { get; set; }
 
         public DateTime Expire { get; set; }
+
+        public DateTime CreatedDate { get; set; }
+
+        public DateTime ModifiedDate { get; set; }
+
+        public Link Openings { get; set; }
 
 
     }

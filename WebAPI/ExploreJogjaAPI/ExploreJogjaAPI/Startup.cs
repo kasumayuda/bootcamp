@@ -23,6 +23,8 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc.Cors.Internal;
 using Microsoft.AspNetCore.Http;
 using ExploreJogjaAPI.Services.Events;
+using ExploreJogjaAPI.Models;
+using AutoMapper;
 
 namespace ExploreJogjaAPI {
     public class Startup {
@@ -88,7 +90,9 @@ namespace ExploreJogjaAPI {
             services.AddIdentity<UserEntity, UserRoleEntity>()
                 .AddEntityFrameworkStores<ExploreJogjaAPIContext, Guid>()
                 .AddDefaultTokenProviders();
-            
+
+            services.AddAutoMapper();
+            services.AddResponseCaching();
             // Add framework services.
             services.AddMvc(opt => {
 
@@ -100,6 +104,10 @@ namespace ExploreJogjaAPI {
 
                 opt.SslPort = _httpsport;
                 opt.Filters.Add(typeof(RequireHttpsAttribute));
+
+                opt.CacheProfiles.Add("Static", new CacheProfile { Duration = 86400 });
+                opt.CacheProfiles.Add("Collection", new CacheProfile { Duration = 60 });
+                opt.CacheProfiles.Add("Resource", new CacheProfile { Duration = 180 });
             });
 
             services.AddRouting(opt => opt.LowercaseUrls = true);
@@ -111,6 +119,8 @@ namespace ExploreJogjaAPI {
                 opt.DefaultApiVersion = new ApiVersion(1, 0);
                 opt.ApiVersionSelector = new CurrentImplementationApiVersionSelector(opt);
             });
+
+            services.Configure<PagingOptions>(Configuration.GetSection("DefaultPagingOptions"));
 
             services.AddScoped<IEventService, EventService>();
 
@@ -148,7 +158,7 @@ namespace ExploreJogjaAPI {
             app.UseIdentity();
             app.UseOAuthValidation();
             app.UseOpenIddict();
-
+            app.UseResponseCaching();
             app.UseMvc();
         }
 
