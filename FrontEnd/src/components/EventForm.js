@@ -78,11 +78,13 @@ export class EventForm extends Component{
         var startDateMessage = '';
         if (this.state.event.startDate.valueOf() != this.state.event.finishDate.valueOf() && this.state.event.finishDate.valueOf() < this.state.event.startDate.valueOf()){
             startDateMessage = "Start date can't be later than finish date";
+            isFormValid = false;
         }
 
         var startTimeMessage = '';
         if (this.state.event.startDate.valueOf() === this.state.event.finishDate.valueOf() && this.state.event.finishTime.getTime() < this.state.event.startTime.getTime()){
             startTimeMessage = "Start time can't be later than finish time";
+            isFormValid = false;
         }
 
         this.setState({
@@ -113,9 +115,7 @@ export class EventForm extends Component{
         var finishDate = this.state.event.finishDate;
         var finishTime = this.state.event.finishTime;
         var finishDateTime = new Date(finishDate.getFullYear(), finishDate.getMonth(), finishDate.getDate(), finishTime.getHours(), finishTime.getMinutes());
-       
-        console.log('submit');
-        
+               
         var config ={ 
             headers: {
                 'Content-Type':'application/json; charset=utf-8',

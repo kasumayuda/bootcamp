@@ -7,7 +7,10 @@
     "flexboxgrid": "^6.3.1",
     "formsy-material-ui": "^0.6.2",
     "formsy-react": "^0.19.5",
-    "react-icons": "^2.2.5"
+    "react-icons": "^2.2.5",
+    "react-responsive-carousel": "^3.1.25",
+    "react-styled-flexboxgrid": "^2.0.3",
+    "styled-components": "^2.1.2"
   },
   "devDependencies": {
     "autoprefixer-loader": "^3.2.0",

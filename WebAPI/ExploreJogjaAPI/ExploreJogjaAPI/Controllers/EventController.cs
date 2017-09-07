@@ -29,7 +29,7 @@ namespace ExploreJogjaAPI.Controllers
             _defaultPagingOptions = defaultPagingOptionsAccessor.Value;
         }
 
-        [HttpGet("{eventId}", Name = nameof(GetEventByIdAsync))]
+        [HttpGet("GetEventById/{eventId}",Name = nameof(GetEventByIdAsync))]
         public async Task<IActionResult> GetEventByIdAsync(Guid eventId, CancellationToken ct) {
             var eventData = await _eventService.GetEventAsync(eventId, ct);
             if (eventData == null) {

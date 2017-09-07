@@ -15,3 +15,9 @@ export function ExploreJogjaAPIServer(){
     var port= apiServer.port != undefined && apiServer.port != '' ? `:${apiServer.port}` : '';
     return `${apiServer.protocol}://${apiServer.address}${port}/`;
 }
+
+export function GoogleMapURL(location){
+    var gmapsAPIKey = Config.googleMapAPIKey;    
+    var gmapsURL = `//www.google.com/maps/embed/v1/place?q=${location}&zoom=17&key=${gmapsAPIKey}`;
+    return gmapsURL;
+}

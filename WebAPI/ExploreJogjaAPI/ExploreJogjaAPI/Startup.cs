@@ -150,11 +150,11 @@ namespace ExploreJogjaAPI {
                 });
             });
 
-            app.UseHsts(opt => {
-                opt.MaxAge(days: 180);
-                opt.IncludeSubdomains();
-                opt.Preload();
-            });
+            //app.UseHsts(opt => {
+            //    opt.MaxAge(days: 180);
+            //    opt.IncludeSubdomains();
+            //    opt.Preload();
+            //});
             app.UseIdentity();
             app.UseOAuthValidation();
             app.UseOpenIddict();

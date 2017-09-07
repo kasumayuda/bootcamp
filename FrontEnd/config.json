@@ -3,5 +3,6 @@
         "protocol":"https",
         "address":"localhost",
         "port":"44323"
-    }    
+    },
+    "googleMapAPIKey": "AIzaSyCcY6jsbFIHVpDgR1L9KAlJugl76dpsRWM"
 }
