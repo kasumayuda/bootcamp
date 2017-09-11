@@ -94,6 +94,14 @@ export class EventList extends Component{
                         onRequestChange={(open) => this.setState({open})}>
                         <EventDetail eventID={this.state.selectedEvent}/>
                     </Drawer>
+                </MuiThemeProvider><MuiThemeProvider>
+                    <Drawer 
+                        open={this.state.open}
+                        docked={false}
+                        width="80%"
+                        onRequestChange={(open) => this.setState({open})}>
+                        <EventDetail eventID={this.state.selectedEvent}/>
+                    </Drawer>
                 </MuiThemeProvider>
             </div>            
         )    

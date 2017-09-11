@@ -15,6 +15,7 @@ render(
         <Route path="login" component={App}/>
         <Route path="logout" component={App}/>
         <Route path="create-event" component={App}/>
+        <Route path="event-list" component={App}/>
         <Route path="*" component={PageNotFound}/>
     </Router>
     ,document.getElementById('main')

@@ -5,6 +5,7 @@ import {Logout} from './Logout'
 import {EventForm} from './EventForm'
 import * as CommonHelper from './Common';
 import {ExploreJogjaHomepage} from './ExploreJogjaHomepage'
+import {AdminEventList} from './AdminEventList'
 
 export class App extends Component{
 
@@ -33,6 +34,7 @@ export class App extends Component{
                     {(this.props.location.pathname === "/login") ? <LoginForm updateOtherComponent={this.handler}/> : ''}
                     {(this.props.location.pathname === "/logout") ? <Logout updateOtherComponent={this.handler}/> : ''}
                     {(this.props.location.pathname === "/create-event") ? <EventForm/> : ''}
+                    {(this.props.location.pathname === "/event-list") ? <AdminEventList/> : ''}                    
                 </div>
             </div>
         );

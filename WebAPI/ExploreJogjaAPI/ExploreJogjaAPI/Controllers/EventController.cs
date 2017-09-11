@@ -79,6 +79,46 @@ namespace ExploreJogjaAPI.Controllers
         }
 
         [Authorize]
+        [HttpGet("GetAdminEventList", Name = nameof(GetAdminEventList))]        
+        public async Task<IActionResult> GetAdminEventList(
+            [FromQuery] PagingOptions pagingOptions,
+            [FromQuery] SortOptions<Event, EventEntity> sortOptions,
+            [FromQuery] SearchOptions<Event, EventEntity> searchOptions,
+            CancellationToken ct) {
+
+            if (!ModelState.IsValid) {
+                return BadRequest(new ApiError(ModelState));
+            }
+
+            pagingOptions.Offset = pagingOptions.Offset ?? _defaultPagingOptions.Offset;
+            pagingOptions.Limit = pagingOptions.Limit ?? _defaultPagingOptions.Limit;
+
+            var eventDatas = await _eventService.GetEventsAsync(
+                pagingOptions,
+                sortOptions,
+                searchOptions,
+                ct);
+
+            var collection = PagedCollection<Event>.Create<EventResponse>(
+                Link.ToCollection(nameof(GetEventsHomePageAsync)),
+                eventDatas.Items.ToArray(),
+                eventDatas.TotalSize,
+                pagingOptions);
+
+
+            collection.EventQuery = FormMetaData.FromResource<Event>(
+                Link.ToForm(
+                    nameof(GetEventsHomePageAsync),
+                    null,
+                    Link.GetMethod,
+                    Form.QueryRelation));
+
+            return Ok(collection);
+        }
+
+
+
+        [Authorize]
         [HttpPost]
         [Route("create", Name = nameof(CreateEventAsync))]
         public async Task<IActionResult> CreateEventAsync(

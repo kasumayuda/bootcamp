@@ -155,7 +155,7 @@ namespace ExploreJogjaAPI {
             //    opt.IncludeSubdomains();
             //    opt.Preload();
             //});
-            app.UseIdentity();
+            //app.UseIdentity();
             app.UseOAuthValidation();
             app.UseOpenIddict();
             app.UseResponseCaching();
